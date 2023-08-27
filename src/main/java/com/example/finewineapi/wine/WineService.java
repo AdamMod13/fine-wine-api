@@ -4,5 +4,7 @@ import java.util.List;
 
 public interface WineService {
 
-    public List<WineDTO> getWines();
+    List<WineDTO> getWines();
+
+    List<WineDTO> getBestRandomWines();
 }
