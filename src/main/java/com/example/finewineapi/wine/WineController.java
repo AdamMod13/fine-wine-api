@@ -12,14 +12,19 @@ import java.util.List;
 @RequestMapping(path = "api/wine")
 public class WineController {
 
-    private final WineServiceImpl wineService;
+    private final WineService wineService;
 
-    public WineController(WineServiceImpl wineService) {
+    public WineController(WineService wineService) {
         this.wineService = wineService;
     }
 
     @GetMapping("/all")
     public List<WineDTO> getWines() {
         return this.wineService.getWines();
+    }
+
+    @GetMapping("/getBestRandomWines")
+    public List<WineDTO> getBestRandomWines() {
+        return this.wineService.getBestRandomWines();
     }
 }
