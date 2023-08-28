@@ -15,7 +15,8 @@ public class WineDTO {
     private String description;
     private String price;
     private String province;
-    private String wineNameV2;
+    private String wineName1;
+    private String wineName2;
     private String region1;
     private String region2;
 
@@ -94,16 +95,24 @@ public class WineDTO {
         this.province = province;
     }
 
-    public String getWineNameV2() {
-        return wineNameV2;
+    public String getWineName2() {
+        return wineName2;
     }
 
-    public void setWineNameV2(String wineNameV2) {
-        this.wineNameV2 = wineNameV2;
+    public void setWineName2(String wineName2) {
+        this.wineName2 = wineName2;
     }
 
     public String getRegion1() {
         return region1;
+    }
+
+    public String getWineName1() {
+        return wineName1;
+    }
+
+    public void setWineName1(String wineName1) {
+        this.wineName1 = wineName1;
     }
 
     public void setRegion1(String region1) {

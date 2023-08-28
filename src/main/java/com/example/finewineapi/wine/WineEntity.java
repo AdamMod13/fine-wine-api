@@ -44,10 +44,10 @@ public class WineEntity {
     private String province;
 
     @Column(name = "wine_name", updatable = false)
-    private String wineName;
+    private String wineName1;
 
     @Column(name = "wine_name_v2", updatable = false)
-    private String wineNameV2;
+    private String wineName2;
 
     @Column(name = "region_1", updatable = false)
     private String region1;
@@ -57,7 +57,7 @@ public class WineEntity {
 
     public WineEntity() {}
 
-    public WineEntity(String variety, String wineColor, String winery, String country, Long points, String description, String price, String province, String wineName, String wineNameV2, String region1, String region2) {
+    public WineEntity(String variety, String wineColor, String winery, String country, Long points, String description, String price, String province, String wineName1, String wineName2, String region1, String region2) {
         this.variety = variety;
         this.wineColor = wineColor;
         this.winery = winery;
@@ -66,8 +66,8 @@ public class WineEntity {
         this.description = description;
         this.price = price;
         this.province = province;
-        this.wineName = wineName;
-        this.wineNameV2 = wineNameV2;
+        this.wineName1 = wineName1;
+        this.wineName2 = wineName2;
         this.region1 = region1;
         this.region2 = region2;
     }
@@ -141,19 +141,19 @@ public class WineEntity {
     }
 
     public String getWineName() {
-        return wineName;
+        return wineName1;
     }
 
-    public void setWineName(String wineName) {
-        this.wineName = wineName;
+    public void setWineName(String wineName1) {
+        this.wineName1 = wineName1;
     }
 
     public String getWineNameV2() {
-        return wineNameV2;
+        return wineName2;
     }
 
-    public void setWineNameV2(String wineNameV2) {
-        this.wineNameV2 = wineNameV2;
+    public void setWineNameV2(String wineName2) {
+        this.wineName2 = wineName2;
     }
 
     public String getRegion1() {

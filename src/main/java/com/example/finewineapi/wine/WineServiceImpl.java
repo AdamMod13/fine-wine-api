@@ -33,22 +33,27 @@ public class WineServiceImpl implements WineService {
     @Override
     public List<WineDTO> getBestRandomWines() {
         List<WineEntity> bestRandomWines = new ArrayList<>();
-        Random rand = new Random();
-        bestRandomWines.add(this.wineRepository.findById(rand.nextLong(
-                this.wineRepository.countByWineColorAndPointsGreaterThan("red", 80L)
-        )).orElse(null));
-        bestRandomWines.add(this.wineRepository.findById(rand.nextLong(
-                this.wineRepository.countByWineColorAndPointsGreaterThan("rose", 80L)
-        )).orElse(null));
-        bestRandomWines.add(this.wineRepository.findById(rand.nextLong(
-                this.wineRepository.countByWineColorAndPointsGreaterThan("white", 80L)
-        )).orElse(null));
-        bestRandomWines.add(this.wineRepository.findById(rand.nextLong(
-                this.wineRepository.countByWineColorAndPointsGreaterThan("sparkling", 80L)
-        )).orElse(null));
+        bestRandomWines.add(getRandomWine("red"));
+        bestRandomWines.add(getRandomWine("white"));
+        bestRandomWines.add(getRandomWine("rose"));
+        bestRandomWines.add(getRandomWine("sparkling"));
         return bestRandomWines
                 .stream()
                 .map(wineEntity -> modelMapper.map(wineEntity, WineDTO.class))
                 .collect(Collectors.toList());
+    }
+
+    private WineEntity getRandomWine(String wineColor) {
+        List<Long> randomWineIds = wineRepository.findIdsByWineColorAndPointsGreaterThan(wineColor, 80L);
+
+        if (randomWineIds.isEmpty()) {
+            return null; // No wines match the criteria
+        }
+
+        Random rand = new Random();
+        int randomIndex = rand.nextInt(randomWineIds.size());
+        Long randomWineId = randomWineIds.get(randomIndex);
+
+        return wineRepository.findById(randomWineId).orElse(null);
     }
 }
