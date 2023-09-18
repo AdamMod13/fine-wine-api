@@ -1,9 +1,13 @@
 package com.example.finewineapi.wine;
 
+import com.example.finewineapi.models.WineRecommendationReq;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -41,6 +45,34 @@ public class WineServiceImpl implements WineService {
                 .stream()
                 .map(wineEntity -> modelMapper.map(wineEntity, WineDTO.class))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<WineDTO> getRecommendations(WineRecommendationReq wineRecommendationReq) throws IOException, InterruptedException {
+        WineRecommendationReq pythonWineRecommendationReq = wineRecommendationReq;
+        ProcessBuilder processBuilder = new ProcessBuilder(
+                "python",
+                "src/main/java/com/example/finewineapi/recommending_system.py",
+                pythonWineRecommendationReq.getCountry(),
+                pythonWineRecommendationReq.getWineColor(),
+                pythonWineRecommendationReq.getVariety(),
+                pythonWineRecommendationReq.getWinery(),
+                pythonWineRecommendationReq.getPoints().toString(),
+                pythonWineRecommendationReq.getPrice().toString()
+        );
+        processBuilder.redirectErrorStream(true);
+
+        Process process = processBuilder.start();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+
+        String line;
+        while ((line = reader.readLine()) != null) {
+            System.out.println(line);
+        }
+
+        int exitCode = process.waitFor();
+        System.out.println("Script exited with code: " + exitCode);
+        return null;
     }
 
     private WineEntity getRandomWine(String wineColor) {

@@ -1,10 +1,9 @@
 package com.example.finewineapi.wine;
 
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.example.finewineapi.models.WineRecommendationReq;
+import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 
 @CrossOrigin(origins = "http://localhost:4200")
@@ -26,5 +25,10 @@ public class WineController {
     @GetMapping("/getBestRandomWines")
     public List<WineDTO> getBestRandomWines() {
         return this.wineService.getBestRandomWines();
+    }
+
+    @GetMapping("/getRecommendations")
+    public List<WineDTO> getRecommendations(@RequestBody WineRecommendationReq wineRecommendationReq) throws IOException, InterruptedException {
+        return this.wineService.getRecommendations(wineRecommendationReq);
     }
 }
