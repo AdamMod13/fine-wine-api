@@ -1,39 +1,43 @@
 package com.example.finewineapi.models;
 
+import java.util.List;
+
 public class WineRecommendationReq {
-    String country;
-    String wineColor;
+    List<String> countries;
+    List<String> wineColors;
     String variety;
     String winery;
+    String province;
     Long price;
     Long points;
 
     public WineRecommendationReq() {
     }
 
-    public WineRecommendationReq(String country, String wineColor, String variety, String winery, Long price, Long points) {
-        this.country = country;
-        this.wineColor = wineColor;
+    public WineRecommendationReq(List<String> countries, List<String> wineColors, String variety, String winery, String province, Long price, Long points) {
+        this.countries = countries;
+        this.wineColors = wineColors;
         this.variety = variety;
         this.winery = winery;
+        this.province = province;
         this.price = price;
         this.points = points;
     }
 
-    public String getCountry() {
-        return country;
+    public List<String> getCountries() {
+        return countries;
     }
 
-    public void setCountry(String country) {
-        this.country = country;
+    public void setCountries(List<String> countries) {
+        this.countries = countries;
     }
 
-    public String getWineColor() {
-        return wineColor;
+    public List<String> getWineColors() {
+        return wineColors;
     }
 
-    public void setWineColor(String wineColor) {
-        this.wineColor = wineColor;
+    public void setWineColors(List<String> wineColors) {
+        this.wineColors = wineColors;
     }
 
     public String getVariety() {
@@ -68,24 +72,11 @@ public class WineRecommendationReq {
         this.points = points;
     }
 
-    public void replaceNullValuesWithDash() {
-        if (country == null) {
-            country = "-";
-        }
-        if (wineColor == null) {
-            wineColor = "-";
-        }
-        if (variety == null) {
-            variety = "-";
-        }
-        if (winery == null) {
-            winery = "-";
-        }
-        if (price == null) {
-            price = -1L; // You can choose a different default value for Long
-        }
-        if (points == null) {
-            points = -1L; // You can choose a different default value for Long
-        }
+    public String getProvince() {
+        return province;
+    }
+
+    public void setProvince(String province) {
+        this.province = province;
     }
 }

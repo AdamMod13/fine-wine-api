@@ -22,12 +22,12 @@ public class WineController {
         return this.wineService.getWines();
     }
 
-    @GetMapping("/getBestRandomWines")
+    @GetMapping("/get-best-random-wines")
     public List<WineDTO> getBestRandomWines() {
         return this.wineService.getBestRandomWines();
     }
 
-    @GetMapping("/getRecommendations")
+    @GetMapping("/get-recommendations")
     public List<WineDTO> getRecommendations(@RequestBody WineRecommendationReq wineRecommendationReq) throws IOException, InterruptedException {
         return this.wineService.getRecommendations(wineRecommendationReq);
     }

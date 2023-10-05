@@ -1,41 +1,45 @@
 import numpy as np
-from sklearn.neighbors import KNeighborsClassifier
+import json
 import pandas as pd
 from sklearn.neighbors import NearestNeighbors
 from scipy.sparse import csr_matrix
-from sklearn.decomposition import TruncatedSVD
-import requests
-from bs4 import BeautifulSoup
 import sys
+import psycopg2  # PostgreSQL library
+import itertools
 
-wines = pd.read_csv('src/main/java/com/example/finewineapi/fine-wine-data.csv', sep=';', index_col=0)
+conn = psycopg2.connect(
+    dbname="fine_wine",
+    user="adam",
+    password="postgres",
+    host="localhost",
+    port="5432"
+)
+
+query = """
+    SELECT *
+    FROM wines
+"""
+
+argumentListSplited = [list(y) for x, y in itertools.groupby(sys.argv, lambda z: z == ';') if not x]
+
+defaultParams = argumentListSplited[0]
+countries = argumentListSplited[1] if argumentListSplited[1][0] != '' else None
+wineColors = argumentListSplited[2] if argumentListSplited[2][0] != '' else None
+
+wines = pd.read_sql_query(query, conn)
+conn.close()
+
 wine = wines.copy()
 
-country = sys.argv[1] if sys.argv[1] != "-" else None
-color = sys.argv[2] if sys.argv[2] != "-" else None
-variety = sys.argv[3] if sys.argv[3] != "-" else None
-winery = sys.argv[4] if sys.argv[4] != "-" else None
-minPoints = int(sys.argv[5]) if sys.argv[5] != "-" else None
-maxPrice = int(sys.argv[6]) if sys.argv[6] != "-" else None
-
-col = ['province','variety','points']
+col = ['id','description','province','variety','points','country','wine_color','winery','price','wine_name','region_1']
 wine1 = wine[col]
 wine1 = wine1.dropna(axis=0)
 wine1 = wine1.drop_duplicates(['province','variety'])
-if country:
-    wine1 = wine1[wine1['country'] == country]
-if color:
-    wine1 = wine1[wine1['color'] == color]
-if variety:
-    wine1 = wine1[wine1['variety'] == variety]
-if winery:
-    wine1 = wine1[wine1['winery'] == winery]
-if minPoints:
-    wine1 = wine1[wine1['points'] > minPoints]
-else:
-    wine1 = wine1[wine1['points'] > 85]
-if maxPrice:
-    wine1 = wine1[wine1['price'] < maxPrice]
+
+if countries:
+    wine1 = wine1[wine1['country'].isin(countries)]
+if wineColors:
+    wine1 = wine1[wine1['wine_color'].isin(wineColors)]
 
 wine_pivot = wine1.pivot(index= 'variety', columns='province', values='points').fillna(0)
 wine_pivot_matrix = csr_matrix(wine_pivot)
@@ -44,5 +48,26 @@ model_knn = knn.fit(wine_pivot_matrix)
 
 query_index = np.random.choice(wine_pivot.shape[0])
 distance, indice = model_knn.kneighbors(wine_pivot.iloc[query_index,:].values.reshape(1,-1), n_neighbors=6)
+
+results = []
 for i in range(0, len(distance.flatten())):
-    print('{0}: {1} with distance: {2}'.format(i,wine_pivot.index[indice.flatten()[i]],distance.flatten()[i]))
+    variety_index = wine_pivot.index[indice.flatten()[i]]
+    wine_info = wine1[wine1['variety'] == variety_index].iloc[0]
+    result_item = {
+        'id': float(wine_info['id']),
+        'variety': wine_info['variety'],
+        'wineColor': wine_info['wine_color'],
+        'description': wine_info['description'],
+        'price': float(wine_info['price']),
+        'points': float(wine_info['points']),
+        'country': wine_info['country'],
+        'winery': wine_info['winery'],
+        'province': wine_info['province'],
+        'wineName': wine_info['wine_name'],
+        'region1': wine_info['region_1'],
+        'distance': float(distance.flatten()[i])
+    }
+    results.append(result_item)
+
+for result_item in results:
+    print(json.dumps(result_item))

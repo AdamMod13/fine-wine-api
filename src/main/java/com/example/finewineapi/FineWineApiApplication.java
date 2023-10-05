@@ -18,11 +18,4 @@ public class FineWineApiApplication {
     public ModelMapper getModelMapper() {
         return new ModelMapper();
     }
-
-//    @Bean
-//    CommandLineRunner commandLineRunner(WineService wineService, WineRepository wineRepository) {
-//        return args -> {
-//            System.out.println(wineRepository.findAllByWineColorOrderByPoints("Red"));
-//        };
-//    }
 }
