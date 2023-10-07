@@ -3,6 +3,8 @@ package com.example.finewineapi.wine;
 import com.example.finewineapi.models.RecommendationJson;
 import com.example.finewineapi.models.WineRecommendationReq;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.example.finewineapi.currentRecommendations.CurrentRecommendationsEntity;
+import com.example.finewineapi.currentRecommendations.CurrentRecommendationsRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,9 +25,11 @@ public class WineServiceImpl implements WineService {
     private ModelMapper modelMapper;
 
     private final WineRepository wineRepository;
+    private final CurrentRecommendationsRepository currentRecommendationsRepository;
 
-    public WineServiceImpl(WineRepository wineRepository) {
+    public WineServiceImpl(WineRepository wineRepository, CurrentRecommendationsRepository currentRecommendationsRepository) {
         this.wineRepository = wineRepository;
+        this.currentRecommendationsRepository = currentRecommendationsRepository;
     }
 
     @Override
@@ -56,9 +60,9 @@ public class WineServiceImpl implements WineService {
 
         List<String> params = new ArrayList<>(defaultParams);
         params.add(";");
-        params.addAll(wineRecommendationReq.getCountries());
+        params.addAll(wineRecommendationReq.getCountries().isEmpty() ? List.of("") : wineRecommendationReq.getCountries());
         params.add(";");
-        params.addAll(wineRecommendationReq.getWineColors());
+        params.addAll(wineRecommendationReq.getWineColors().isEmpty() ? List.of("") : wineRecommendationReq.getWineColors());
         params.add(";");
 
         ProcessBuilder processBuilder = new ProcessBuilder(params);
@@ -85,7 +89,7 @@ public class WineServiceImpl implements WineService {
             }
             return recommendations
                     .stream()
-                    .map(wineEntity -> modelMapper.map(recommendations, WineDTO.class))
+                    .map(json -> modelMapper.map(json, WineDTO.class))
                     .collect(Collectors.toList());
         } else {
             System.err.println("Python script exited with an error: " + exitCode);
@@ -105,5 +109,23 @@ public class WineServiceImpl implements WineService {
         Long randomWineId = randomWineIds.get(randomIndex);
 
         return wineRepository.findById(randomWineId).orElse(null);
+    }
+
+    @Override
+    public void saveCurrentRecommendations(List<WineDTO> currentRecommendations) {
+        List<CurrentRecommendationsEntity> recommendationEntities = new ArrayList<>();
+        for (WineDTO wineDTO : currentRecommendations) {
+            WineEntity wineEntity = this.wineRepository.findById(wineDTO.getId()).orElse(null); // Replace with your implementation
+            CurrentRecommendationsEntity recommendationEntity = new CurrentRecommendationsEntity(wineEntity);
+            recommendationEntities.add(recommendationEntity);
+        }
+        this.currentRecommendationsRepository.deleteAll();
+        this.currentRecommendationsRepository.saveAll(recommendationEntities);
+    }
+
+    @Override
+    public List<WineDTO> getCurrentRecommendations() {
+        return new ArrayList<>(this.currentRecommendationsRepository.findAll()
+                .stream().map(wine -> modelMapper.map(wine.getWine(), WineDTO.class)).toList());
     }
 }

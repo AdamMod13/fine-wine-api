@@ -27,8 +27,18 @@ public class WineController {
         return this.wineService.getBestRandomWines();
     }
 
-    @GetMapping("/get-recommendations")
+    @PostMapping("/get-recommendations")
     public List<WineDTO> getRecommendations(@RequestBody WineRecommendationReq wineRecommendationReq) throws IOException, InterruptedException {
         return this.wineService.getRecommendations(wineRecommendationReq);
+    }
+
+    @PostMapping("/save-current-recommendations")
+    public void saveCurrentRecommendations(@RequestBody List<WineDTO> currentRecommendations) {
+        this.wineService.saveCurrentRecommendations(currentRecommendations);
+    }
+
+    @GetMapping("/get-current-recommendations")
+    public List<WineDTO> getCurrentRecommendations() {
+        return this.wineService.getCurrentRecommendations();
     }
 }

@@ -12,4 +12,8 @@ public interface WineService {
     List<WineDTO> getBestRandomWines();
 
     List<WineDTO> getRecommendations(WineRecommendationReq wineRecommendationReq) throws IOException, InterruptedException;
+
+    void saveCurrentRecommendations(List<WineDTO> currentRecommendations);
+
+    List<WineDTO> getCurrentRecommendations();
 }
