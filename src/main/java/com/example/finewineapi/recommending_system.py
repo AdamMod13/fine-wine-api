@@ -31,17 +31,17 @@ conn.close()
 
 wine = wines.copy()
 
-col = ['id','description','province','variety','points','country','wine_color','winery','price','wine_name','region_1']
+col = ['id','variety','country','wine_color','winery','price','points','province']
 wine1 = wine[col]
 wine1 = wine1.dropna(axis=0)
-wine1 = wine1.drop_duplicates(['province','variety'])
+wine1 = wine1.drop_duplicates(['winery','variety'])
 
-if countries:
-    wine1 = wine1[wine1['country'].isin(countries)]
-if wineColors:
-    wine1 = wine1[wine1['wine_color'].isin(wineColors)]
+# if countries:
+#     wine1 = wine1[wine1['country'].isin(countries)]
+# if wineColors:
+#     wine1 = wine1[wine1['wine_color'].isin(wineColors)]
 
-wine_pivot = wine1.pivot(index= 'variety', columns='province', values='points').fillna(0)
+wine_pivot = wine1.pivot(index= 'winery', columns='variety', values='points').fillna(0)
 wine_pivot_matrix = csr_matrix(wine_pivot)
 knn = NearestNeighbors(n_neighbors=10, algorithm= 'brute', metric= 'cosine')
 model_knn = knn.fit(wine_pivot_matrix)
@@ -52,19 +52,14 @@ distance, indice = model_knn.kneighbors(wine_pivot.iloc[query_index,:].values.re
 results = []
 for i in range(0, len(distance.flatten())):
     variety_index = wine_pivot.index[indice.flatten()[i]]
-    wine_info = wine1[wine1['variety'] == variety_index].iloc[0]
+    wine_info = wine1[wine1['winery'] == variety_index].iloc[0]
     result_item = {
         'id': float(wine_info['id']),
         'variety': wine_info['variety'],
         'wineColor': wine_info['wine_color'],
-        'description': wine_info['description'],
-        'price': float(wine_info['price']),
         'points': float(wine_info['points']),
         'country': wine_info['country'],
         'winery': wine_info['winery'],
-        'province': wine_info['province'],
-        'wineName': wine_info['wine_name'],
-        'region1': wine_info['region_1'],
         'distance': float(distance.flatten()[i])
     }
     results.append(result_item)
