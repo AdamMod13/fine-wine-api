@@ -6,5 +6,5 @@ public interface WineryService {
 
     List<WineryDTO> getWineries();
 
-    List<WineryDTO> getFiveRandomWineries();
+    List<WineryDTO> getRandomWineries(Long size);
 }

@@ -6,5 +6,5 @@ public interface VarietyService {
 
     List<VarietyDTO> getVarieties();
 
-    List<VarietyDTO> getFiveRandomVarieties();
+    List<VarietyDTO> getRandomVarieties(Long size);
 }

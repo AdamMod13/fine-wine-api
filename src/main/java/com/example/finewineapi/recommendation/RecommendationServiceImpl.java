@@ -28,13 +28,13 @@ public class RecommendationServiceImpl implements RecommendationService {
 
     @Override
     public RecommendationDTO getFilters() {
-        List<String> varieties = this.varietyRepository.findRandomUniqueVarieties()
+        List<String> varieties = this.varietyRepository.findRandomUniqueVarieties(15L)
                 .stream()
                 .map(varietyEntity -> modelMapper.map(varietyEntity, VarietyDTO.class))
                 .map(VarietyDTO::getVariety)
                 .collect(Collectors.toList());
 
-        List<String> wineries = this.wineryRepository.findRandomUniqueWineries()
+        List<String> wineries = this.wineryRepository.findRandomUniqueWineries(15L)
                 .stream()
                 .map(wineryEntity -> modelMapper.map(wineryEntity, WineryDTO.class))
                 .map(WineryDTO::getWinery)

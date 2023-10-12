@@ -191,8 +191,8 @@ public class WineServiceImpl implements WineService {
 
         List<WineEntity> entities = q.getResultList();
 
-        List<String> varieties = this.varietyService.getFiveRandomVarieties().stream().map(VarietyDTO::getVariety).toList();
-        List<String> wineries = this.wineryService.getFiveRandomWineries().stream().map(WineryDTO::getWinery).toList();
+        List<String> varieties = this.varietyService.getRandomVarieties(5L).stream().map(VarietyDTO::getVariety).toList();
+        List<String> wineries = this.wineryService.getRandomWineries(5L).stream().map(WineryDTO::getWinery).toList();
 
         return new FindWineRes(wineEntityPage.map(wine -> modelMapper.map(wine, WineDTO.class)), varieties, wineries);
     }
