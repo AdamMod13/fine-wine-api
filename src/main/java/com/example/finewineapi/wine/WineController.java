@@ -1,5 +1,7 @@
 package com.example.finewineapi.wine;
 
+import com.example.finewineapi.models.FindWineReq;
+import com.example.finewineapi.models.FindWineRes;
 import com.example.finewineapi.models.WineRecommendationReq;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,5 +42,10 @@ public class WineController {
     @GetMapping("/get-current-recommendations")
     public List<WineDTO> getCurrentRecommendations() {
         return this.wineService.getCurrentRecommendations();
+    }
+
+    @PostMapping("/get-wine-page-with-filters/{pageNumber}")
+    public FindWineRes getAllWines(@PathVariable(name = "pageNumber") int pageNumber, @RequestBody FindWineReq findWineReq) {
+        return this.wineService.getWinePageWithFilters(pageNumber, findWineReq);
     }
 }

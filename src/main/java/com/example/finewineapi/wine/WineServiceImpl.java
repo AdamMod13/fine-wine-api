@@ -1,12 +1,23 @@
 package com.example.finewineapi.wine;
 
+import com.example.finewineapi.models.FindWineReq;
+import com.example.finewineapi.models.FindWineRes;
 import com.example.finewineapi.models.RecommendationJson;
 import com.example.finewineapi.models.WineRecommendationReq;
+import com.example.finewineapi.variety.VarietyDTO;
+import com.example.finewineapi.variety.VarietyService;
+import com.example.finewineapi.winery.WineryDTO;
+import com.example.finewineapi.winery.WineryService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.example.finewineapi.currentRecommendations.CurrentRecommendationsEntity;
 import com.example.finewineapi.currentRecommendations.CurrentRecommendationsRepository;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Query;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
@@ -21,15 +32,25 @@ import java.util.stream.Collectors;
 @Service
 public class WineServiceImpl implements WineService {
 
+    @PersistenceContext
+    EntityManager entityManager;
+
     @Autowired
     private ModelMapper modelMapper;
 
+    private final VarietyService varietyService;
+    private final WineryService wineryService;
     private final WineRepository wineRepository;
     private final CurrentRecommendationsRepository currentRecommendationsRepository;
 
-    public WineServiceImpl(WineRepository wineRepository, CurrentRecommendationsRepository currentRecommendationsRepository) {
+    public WineServiceImpl(WineRepository wineRepository,
+                           CurrentRecommendationsRepository currentRecommendationsRepository,
+                           VarietyService varietyService,
+                           WineryService wineryService) {
         this.wineRepository = wineRepository;
         this.currentRecommendationsRepository = currentRecommendationsRepository;
+        this.varietyService = varietyService;
+        this.wineryService = wineryService;
     }
 
     @Override
@@ -127,5 +148,52 @@ public class WineServiceImpl implements WineService {
     public List<WineDTO> getCurrentRecommendations() {
         return new ArrayList<>(this.currentRecommendationsRepository.findAll()
                 .stream().map(wine -> modelMapper.map(wine.getWine(), WineDTO.class)).toList());
+    }
+
+    @Override
+    public FindWineRes getWinePageWithFilters(int pageNumber, FindWineReq findWineReq) {
+        PageRequest pageRequest = PageRequest.of(pageNumber, 10);
+        Page<WineEntity> wineEntityPage = this.wineRepository.findWinesWithNoNullColumns(
+                pageRequest,
+                findWineReq.getWineColors(),
+                findWineReq.getVarieties(),
+                findWineReq.getCountries(),
+                findWineReq.getProvinces(),
+                findWineReq.getWineries()
+        );
+
+        String nativeQuery =
+                "SELECT * FROM wines as w WHERE " +
+                "w.wine_color IS NOT NULL " +
+                "AND w.variety IS NOT NULL " +
+                "AND w.province IS NOT NULL " +
+                "AND w.winery IS NOT NULL " +
+                "AND w.country IS NOT NULL " +
+                "AND w.points IS NOT NULL " +
+                "AND w.description IS NOT NULL " +
+                "AND (:colors IS NULL OR w.wine_color IN :colors) " +
+//                "AND (:varieties IS NULL OR w.variety IN :varieties) " +
+                "AND (:countries IS NULL OR w.country IN :countries) " +
+//                "AND (:provinces IS NULL OR w.province IN :provinces) " +
+//                "AND (:wineries IS NULL OR w.winery IN :wineries) " +
+                "ORDER BY w.id";
+
+        Query q = entityManager.createNativeQuery(nativeQuery);
+        q.setParameter("colors", findWineReq.getWineColors());
+//        q.setParameter("varieties", findWineReq.getVarieties());
+        q.setParameter("countries", findWineReq.getCountries());
+//        q.setParameter("provinces", findWineReq.getProvinces());
+//        q.setParameter("wineries", findWineReq.getWineries());
+        int offset = (pageNumber) * 10;
+
+        q.setFirstResult(offset);
+        q.setMaxResults(10);
+
+        List<WineEntity> entities = q.getResultList();
+
+        List<String> varieties = this.varietyService.getFiveRandomVarieties().stream().map(VarietyDTO::getVariety).toList();
+        List<String> wineries = this.wineryService.getFiveRandomWineries().stream().map(WineryDTO::getWinery).toList();
+
+        return new FindWineRes(wineEntityPage.map(wine -> modelMapper.map(wine, WineDTO.class)), varieties, wineries);
     }
 }
