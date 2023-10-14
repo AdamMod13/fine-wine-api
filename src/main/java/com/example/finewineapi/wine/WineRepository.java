@@ -1,6 +1,5 @@
 package com.example.finewineapi.wine;
 
-import com.example.finewineapi.models.FindWineReq;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

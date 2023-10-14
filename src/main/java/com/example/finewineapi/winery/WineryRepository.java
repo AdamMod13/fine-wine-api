@@ -11,4 +11,6 @@ import java.util.List;
 public interface WineryRepository extends JpaRepository<WineryEntity, Long> {
     @Query(value = "SELECT * FROM wineries ORDER BY RANDOM() LIMIT :size", nativeQuery = true)
     List<WineryEntity> findRandomUniqueWineries(@Param("size") Long size);
+
+    List<WineryEntity> findTop25ByWineryContaining(String wineryFilter);
 }

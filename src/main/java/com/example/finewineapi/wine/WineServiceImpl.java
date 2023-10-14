@@ -4,6 +4,8 @@ import com.example.finewineapi.models.FindWineReq;
 import com.example.finewineapi.models.FindWineRes;
 import com.example.finewineapi.models.RecommendationJson;
 import com.example.finewineapi.models.WineRecommendationReq;
+import com.example.finewineapi.savedWines.SavedWineEntity;
+import com.example.finewineapi.savedWines.SavedWineRepository;
 import com.example.finewineapi.variety.VarietyDTO;
 import com.example.finewineapi.variety.VarietyService;
 import com.example.finewineapi.winery.WineryDTO;
@@ -16,8 +18,7 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
@@ -41,16 +42,19 @@ public class WineServiceImpl implements WineService {
     private final VarietyService varietyService;
     private final WineryService wineryService;
     private final WineRepository wineRepository;
+    private final SavedWineRepository savedWineRepository;
     private final CurrentRecommendationsRepository currentRecommendationsRepository;
 
     public WineServiceImpl(WineRepository wineRepository,
                            CurrentRecommendationsRepository currentRecommendationsRepository,
                            VarietyService varietyService,
-                           WineryService wineryService) {
+                           WineryService wineryService,
+                           SavedWineRepository savedWineRepository) {
         this.wineRepository = wineRepository;
         this.currentRecommendationsRepository = currentRecommendationsRepository;
         this.varietyService = varietyService;
         this.wineryService = wineryService;
+        this.savedWineRepository = savedWineRepository;
     }
 
     @Override
@@ -152,16 +156,6 @@ public class WineServiceImpl implements WineService {
 
     @Override
     public FindWineRes getWinePageWithFilters(int pageNumber, FindWineReq findWineReq) {
-        PageRequest pageRequest = PageRequest.of(pageNumber, 10);
-        Page<WineEntity> wineEntityPage = this.wineRepository.findWinesWithNoNullColumns(
-                pageRequest,
-                findWineReq.getWineColors(),
-                findWineReq.getVarieties(),
-                findWineReq.getCountries(),
-                findWineReq.getProvinces(),
-                findWineReq.getWineries()
-        );
-
         String nativeQuery =
                 "SELECT * FROM wines as w WHERE " +
                 "w.wine_color IS NOT NULL " +
@@ -172,18 +166,18 @@ public class WineServiceImpl implements WineService {
                 "AND w.points IS NOT NULL " +
                 "AND w.description IS NOT NULL " +
                 "AND (:colors IS NULL OR w.wine_color IN :colors) " +
-//                "AND (:varieties IS NULL OR w.variety IN :varieties) " +
+                "AND (:varieties IS NULL OR w.variety IN :varieties) " +
                 "AND (:countries IS NULL OR w.country IN :countries) " +
 //                "AND (:provinces IS NULL OR w.province IN :provinces) " +
-//                "AND (:wineries IS NULL OR w.winery IN :wineries) " +
+                "AND (:wineries IS NULL OR w.winery IN :wineries) " +
                 "ORDER BY w.id";
 
-        Query q = entityManager.createNativeQuery(nativeQuery);
+        Query q = entityManager.createNativeQuery(nativeQuery, WineEntity.class);
         q.setParameter("colors", findWineReq.getWineColors());
-//        q.setParameter("varieties", findWineReq.getVarieties());
+        q.setParameter("varieties", findWineReq.getVarieties());
         q.setParameter("countries", findWineReq.getCountries());
 //        q.setParameter("provinces", findWineReq.getProvinces());
-//        q.setParameter("wineries", findWineReq.getWineries());
+        q.setParameter("wineries", findWineReq.getWineries());
         int offset = (pageNumber) * 10;
 
         q.setFirstResult(offset);
@@ -191,9 +185,26 @@ public class WineServiceImpl implements WineService {
 
         List<WineEntity> entities = q.getResultList();
 
+        Page<WineDTO> winess = new PageImpl<>(
+                entities
+                    .stream()
+                    .map(wineObject -> modelMapper.map(wineObject, WineDTO.class))
+                    .collect(Collectors.toList())
+        );
+
         List<String> varieties = this.varietyService.getRandomVarieties(5L).stream().map(VarietyDTO::getVariety).toList();
         List<String> wineries = this.wineryService.getRandomWineries(5L).stream().map(WineryDTO::getWinery).toList();
 
-        return new FindWineRes(wineEntityPage.map(wine -> modelMapper.map(wine, WineDTO.class)), varieties, wineries);
+        return new FindWineRes(winess, varieties, wineries);
+    }
+
+    @Override
+    public List<WineDTO> getFavouriteWinesPage(int pageNumber, String userId) {
+        Pageable pageableRequest = PageRequest.of(pageNumber, 3, Sort.Direction.DESC);
+        Page<SavedWineEntity> savedWineEntities = this.savedWineRepository.findAllByUserIdOrderById(pageableRequest, userId);
+        return savedWineEntities
+                .stream()
+                .map(wineObject -> modelMapper.map(wineObject, WineDTO.class))
+                .toList();
     }
 }

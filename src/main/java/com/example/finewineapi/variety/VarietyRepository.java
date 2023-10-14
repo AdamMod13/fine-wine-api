@@ -11,4 +11,6 @@ import java.util.List;
 public interface VarietyRepository extends JpaRepository<VarietyEntity, Long> {
     @Query(value = "SELECT * FROM varieties ORDER BY RANDOM() LIMIT :size", nativeQuery = true)
     List<VarietyEntity> findRandomUniqueVarieties(@Param("size") Long size);
+
+    List<VarietyEntity> findTop25ByVarietyContaining(String varietyFilter);
 }

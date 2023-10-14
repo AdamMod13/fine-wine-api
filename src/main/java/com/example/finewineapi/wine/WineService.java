@@ -20,4 +20,6 @@ public interface WineService {
     List<WineDTO> getCurrentRecommendations();
 
     FindWineRes getWinePageWithFilters(int pageNumber, FindWineReq findWineReq);
+
+    List<WineDTO> getFavouriteWinesPage(int pageNumber, String userId);
 }

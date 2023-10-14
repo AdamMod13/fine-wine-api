@@ -48,4 +48,9 @@ public class WineController {
     public FindWineRes getAllWines(@PathVariable(name = "pageNumber") int pageNumber, @RequestBody FindWineReq findWineReq) {
         return this.wineService.getWinePageWithFilters(pageNumber, findWineReq);
     }
+
+    @PostMapping("/get-favourites-wine-page/{pageNumber}")
+    public List<WineDTO> getFavouriteWinesPage(@PathVariable(name = "pageNumber") int pageNumber, @RequestBody String userId) {
+        return this.wineService.getFavouriteWinesPage(pageNumber, userId);
+    }
 }

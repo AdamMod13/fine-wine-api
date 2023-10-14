@@ -10,13 +10,15 @@ import java.util.List;
 public class RecommendationDTO {
     List<String> wineries;
     List<String> varieties;
+    String type;
 
     public RecommendationDTO() {
     }
 
-    public RecommendationDTO(List<String> wineries, List<String> varieties) {
+    public RecommendationDTO(List<String> wineries, List<String> varieties, String type) {
         this.wineries = wineries;
         this.varieties = varieties;
+        this.type = type;
     }
 
     public List<String> getWineries() {
@@ -33,5 +35,13 @@ public class RecommendationDTO {
 
     public void setVarieties(List<String> varieties) {
         this.varieties = varieties;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 }
