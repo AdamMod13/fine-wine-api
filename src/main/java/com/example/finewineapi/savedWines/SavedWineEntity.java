@@ -36,6 +36,11 @@ public class SavedWineEntity {
         this.wine = wine;
     }
 
+    public SavedWineEntity(String userId, WineEntity wine) {
+        this.userId = userId;
+        this.wine = wine;
+    }
+
     public Long getId() {
         return id;
     }

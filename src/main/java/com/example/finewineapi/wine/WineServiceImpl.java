@@ -1,9 +1,6 @@
 package com.example.finewineapi.wine;
 
-import com.example.finewineapi.models.FindWineReq;
-import com.example.finewineapi.models.FindWineRes;
-import com.example.finewineapi.models.RecommendationJson;
-import com.example.finewineapi.models.WineRecommendationReq;
+import com.example.finewineapi.models.*;
 import com.example.finewineapi.savedWines.SavedWineEntity;
 import com.example.finewineapi.savedWines.SavedWineRepository;
 import com.example.finewineapi.variety.VarietyDTO;
@@ -199,12 +196,26 @@ public class WineServiceImpl implements WineService {
     }
 
     @Override
+    public void saveFavouriteWine(SaveWineReq wineToSave) {
+        this.savedWineRepository.save(new SavedWineEntity(wineToSave.userId, wineToSave.getWine()));
+    }
+
+    @Override
     public List<WineDTO> getFavouriteWinesPage(int pageNumber, String userId) {
         Pageable pageableRequest = PageRequest.of(pageNumber, 3, Sort.Direction.DESC);
         Page<SavedWineEntity> savedWineEntities = this.savedWineRepository.findAllByUserIdOrderById(pageableRequest, userId);
         return savedWineEntities
                 .stream()
                 .map(wineObject -> modelMapper.map(wineObject, WineDTO.class))
+                .toList();
+    }
+
+    @Override
+    public List<WineDTO> getAllFavourites(String userId) {
+        List<SavedWineEntity> savedWineEntities = this.savedWineRepository.findAllByUserIdOrderById(userId);
+        return savedWineEntities
+                .stream()
+                .map(wineObject -> modelMapper.map(wineObject.getWine(), WineDTO.class))
                 .toList();
     }
 }

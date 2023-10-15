@@ -2,6 +2,7 @@ package com.example.finewineapi.wine;
 
 import com.example.finewineapi.models.FindWineReq;
 import com.example.finewineapi.models.FindWineRes;
+import com.example.finewineapi.models.SaveWineReq;
 import com.example.finewineapi.models.WineRecommendationReq;
 import org.springframework.web.bind.annotation.*;
 
@@ -49,8 +50,18 @@ public class WineController {
         return this.wineService.getWinePageWithFilters(pageNumber, findWineReq);
     }
 
+    @PostMapping("/save-favourite-wine")
+    public void saveFavouriteWine(@RequestBody SaveWineReq wineToSave) {
+         this.wineService.saveFavouriteWine(wineToSave);
+    }
+
     @PostMapping("/get-favourites-wine-page/{pageNumber}")
     public List<WineDTO> getFavouriteWinesPage(@PathVariable(name = "pageNumber") int pageNumber, @RequestBody String userId) {
         return this.wineService.getFavouriteWinesPage(pageNumber, userId);
+    }
+
+    @PostMapping("/get-all-favourites")
+    public List<WineDTO> getFavouriteWinesPage(@RequestBody String userId) {
+        return this.wineService.getAllFavourites(userId);
     }
 }

@@ -2,6 +2,7 @@ package com.example.finewineapi.wine;
 
 import com.example.finewineapi.models.FindWineReq;
 import com.example.finewineapi.models.FindWineRes;
+import com.example.finewineapi.models.SaveWineReq;
 import com.example.finewineapi.models.WineRecommendationReq;
 
 import java.io.IOException;
@@ -22,4 +23,8 @@ public interface WineService {
     FindWineRes getWinePageWithFilters(int pageNumber, FindWineReq findWineReq);
 
     List<WineDTO> getFavouriteWinesPage(int pageNumber, String userId);
+
+    List<WineDTO> getAllFavourites(String userId);
+
+    void saveFavouriteWine(SaveWineReq wineToSave);
 }

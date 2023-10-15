@@ -3,13 +3,13 @@ package com.example.finewineapi.models;
 import java.util.List;
 
 public class FindWineReq {
-    List<String> countries;
-    List<String> wineColors;
-    List<String> varieties;
-    List<String> wineries;
-    List<String> provinces;
-    Long price;
-    Long points;
+    public List<String> countries;
+    public List<String> wineColors;
+    public List<String> varieties;
+    public List<String> wineries;
+    public List<String> provinces;
+    public Long price;
+    public Long points;
 
     public FindWineReq() {
     }
