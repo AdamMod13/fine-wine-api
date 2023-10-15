@@ -2,7 +2,7 @@ package com.example.finewineapi.wine;
 
 import com.example.finewineapi.models.FindWineReq;
 import com.example.finewineapi.models.FindWineRes;
-import com.example.finewineapi.models.SaveWineReq;
+import com.example.finewineapi.models.WishlistWineReq;
 import com.example.finewineapi.models.WineRecommendationReq;
 import org.springframework.web.bind.annotation.*;
 
@@ -51,8 +51,13 @@ public class WineController {
     }
 
     @PostMapping("/save-favourite-wine")
-    public void saveFavouriteWine(@RequestBody SaveWineReq wineToSave) {
+    public void saveFavouriteWine(@RequestBody WishlistWineReq wineToSave) {
          this.wineService.saveFavouriteWine(wineToSave);
+    }
+
+    @PostMapping("/delete-favourite-wine")
+    public void deleteFavouriteWine(@RequestBody WishlistWineReq wineToSave) {
+        this.wineService.deleteFavouriteWine(wineToSave);
     }
 
     @PostMapping("/get-favourites-wine-page/{pageNumber}")

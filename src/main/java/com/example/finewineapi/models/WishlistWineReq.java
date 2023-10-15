@@ -2,14 +2,14 @@ package com.example.finewineapi.models;
 
 import com.example.finewineapi.wine.WineEntity;
 
-public class SaveWineReq {
+public class WishlistWineReq {
     public WineEntity wine;
     public String userId;
 
-    public SaveWineReq() {
+    public WishlistWineReq() {
     }
 
-    public SaveWineReq(WineEntity wine, String userId) {
+    public WishlistWineReq(WineEntity wine, String userId) {
         this.wine = wine;
         this.userId = userId;
     }

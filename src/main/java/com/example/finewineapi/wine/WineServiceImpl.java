@@ -13,6 +13,7 @@ import com.example.finewineapi.currentRecommendations.CurrentRecommendationsRepo
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
+import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
@@ -196,8 +197,16 @@ public class WineServiceImpl implements WineService {
     }
 
     @Override
-    public void saveFavouriteWine(SaveWineReq wineToSave) {
+    public void saveFavouriteWine(WishlistWineReq wineToSave) {
         this.savedWineRepository.save(new SavedWineEntity(wineToSave.userId, wineToSave.getWine()));
+    }
+
+    @Override
+    @Transactional
+    public void deleteFavouriteWine(WishlistWineReq wineToSave) {
+        if (this.savedWineRepository.existsByWineAndUserId(wineToSave.getWine(), wineToSave.getUserId())) {
+            this.savedWineRepository.deleteByWineAndUserId(wineToSave.getWine(), wineToSave.getUserId());
+        }
     }
 
     @Override
