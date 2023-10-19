@@ -83,9 +83,17 @@ public class WineServiceImpl implements WineService {
 
         List<String> params = new ArrayList<>(defaultParams);
         params.add(";");
-        params.addAll(wineRecommendationReq.getCountries().isEmpty() ? List.of("") : wineRecommendationReq.getCountries());
+        params.addAll(
+                wineRecommendationReq.getCountries().isEmpty() || wineRecommendationReq.getCountries() == null
+                        ? List.of("")
+                        : wineRecommendationReq.getCountries()
+        );
         params.add(";");
-        params.addAll(wineRecommendationReq.getWineColors().isEmpty() ? List.of("") : wineRecommendationReq.getWineColors());
+        params.addAll(
+                wineRecommendationReq.getWineColors().isEmpty() || wineRecommendationReq.getWineColors() == null
+                        ? List.of("")
+                        : wineRecommendationReq.getWineColors()
+        );
         params.add(";");
 
         ProcessBuilder processBuilder = new ProcessBuilder(params);
@@ -198,7 +206,9 @@ public class WineServiceImpl implements WineService {
 
     @Override
     public void saveFavouriteWine(WishlistWineReq wineToSave) {
-        this.savedWineRepository.save(new SavedWineEntity(wineToSave.userId, wineToSave.getWine()));
+        if (!this.savedWineRepository.existsByWineAndUserId(wineToSave.getWine(), wineToSave.getUserId())) {
+            this.savedWineRepository.save(new SavedWineEntity(wineToSave.userId, wineToSave.getWine()));
+        }
     }
 
     @Override
@@ -211,11 +221,11 @@ public class WineServiceImpl implements WineService {
 
     @Override
     public List<WineDTO> getFavouriteWinesPage(int pageNumber, String userId) {
-        Pageable pageableRequest = PageRequest.of(pageNumber, 3, Sort.Direction.DESC);
+        Pageable pageableRequest = PageRequest.of(pageNumber, 3, Sort.by("id").descending());
         Page<SavedWineEntity> savedWineEntities = this.savedWineRepository.findAllByUserIdOrderById(pageableRequest, userId);
         return savedWineEntities
                 .stream()
-                .map(wineObject -> modelMapper.map(wineObject, WineDTO.class))
+                .map(wineObject -> modelMapper.map(wineObject.getWine(), WineDTO.class))
                 .toList();
     }
 

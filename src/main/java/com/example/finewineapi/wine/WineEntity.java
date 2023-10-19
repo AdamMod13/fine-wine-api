@@ -1,6 +1,10 @@
 package com.example.finewineapi.wine;
 
+import com.example.finewineapi.recommendation.RecommendationEntity;
 import jakarta.persistence.*;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity(name = "wine_entity")
 @Table(name = "wines")
@@ -54,6 +58,9 @@ public class WineEntity {
 
     @Column(name = "region_2", updatable = false)
     private String region2;
+
+    @ManyToMany(mappedBy = "wines")
+    private Set<RecommendationEntity> recommendations = new HashSet<>();
 
     public WineEntity() {}
 

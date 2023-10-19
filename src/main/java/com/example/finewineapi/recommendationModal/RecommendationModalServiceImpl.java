@@ -1,4 +1,4 @@
-package com.example.finewineapi.recommendation;
+package com.example.finewineapi.recommendationModal;
 
 import com.example.finewineapi.models.FilterWineryOrVarietyReq;
 import com.example.finewineapi.variety.VarietyDTO;
@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class RecommendationServiceImpl implements RecommendationService {
+public class RecommendationModalServiceImpl implements RecommendationModalService {
 
     @Autowired
     private ModelMapper modelMapper;
@@ -23,13 +23,13 @@ public class RecommendationServiceImpl implements RecommendationService {
 
     private final WineryRepository wineryRepository;
 
-    public RecommendationServiceImpl(VarietyRepository varietyRepository, WineryRepository wineryRepository) {
+    public RecommendationModalServiceImpl(VarietyRepository varietyRepository, WineryRepository wineryRepository) {
         this.varietyRepository = varietyRepository;
         this.wineryRepository = wineryRepository;
     }
 
     @Override
-    public RecommendationDTO getFilters() {
+    public RecommendationModalDTO getFilters() {
         List<String> varieties = this.varietyRepository.findRandomUniqueVarieties(15L)
                 .stream()
                 .map(varietyEntity -> modelMapper.map(varietyEntity, VarietyDTO.class))
@@ -42,29 +42,27 @@ public class RecommendationServiceImpl implements RecommendationService {
                 .map(WineryDTO::getWinery)
                 .collect(Collectors.toList());
 
-        return new RecommendationDTO(wineries, varieties, "NONE");
+        return new RecommendationModalDTO(wineries, varieties, "NONE");
     }
 
     @Override
-    public RecommendationDTO getSpecificFilters(FilterWineryOrVarietyReq specificFiltersReq) {
-        List<String> varietyResults = new ArrayList<>();
-        List<String> wineryResults = new ArrayList<>();
+    public RecommendationModalDTO getSpecificFilters(FilterWineryOrVarietyReq specificFiltersReq) {
         switch (specificFiltersReq.getType()) {
             case "VARIETY" -> {
-                varietyResults.addAll(this.varietyRepository.findTop25ByVarietyContaining(specificFiltersReq.getValue())
+                List<String> varietyResults = new ArrayList<>(this.varietyRepository.findTop25ByVarietyContaining(specificFiltersReq.getValue())
                         .stream()
                         .map(varietyEntity -> modelMapper.map(varietyEntity, VarietyDTO.class))
                         .map(VarietyDTO::getVariety)
                         .toList());
-                return new RecommendationDTO(null, varietyResults, "VARIETY");
+                return new RecommendationModalDTO(null, varietyResults, "VARIETY");
             }
             case "WINERY" -> {
-                wineryResults.addAll(this.wineryRepository.findTop25ByWineryContaining(specificFiltersReq.getValue())
+                List<String> wineryResults = new ArrayList<>(this.wineryRepository.findTop25ByWineryContaining(specificFiltersReq.getValue())
                         .stream()
                         .map(wineryEntity -> modelMapper.map(wineryEntity, WineryDTO.class))
                         .map(WineryDTO::getWinery)
                         .toList());
-                return new RecommendationDTO(wineryResults, null, "WINERY");
+                return new RecommendationModalDTO(wineryResults, null, "WINERY");
             }
             default -> {
                 return null;
