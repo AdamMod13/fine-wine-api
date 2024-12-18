@@ -1,6 +1,10 @@
 package com.example.finewineapi.wine;
 
+import com.example.finewineapi.recommendation.RecommendationEntity;
 import jakarta.persistence.*;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity(name = "wine_entity")
 @Table(name = "wines")
@@ -19,11 +23,11 @@ public class WineEntity {
     @Column(name = "id", updatable = false)
     private Long id;
 
-    @Column(name = "variety", updatable = false)
-    private String variety;
+    @Column(name = "name", updatable = false)
+    private String name;
 
-    @Column(name = "wine_color", updatable = false)
-    private String wineColor;
+    @Column(name = "year", updatable = false)
+    private Long year;
 
     @Column(name = "winery", updatable = false)
     private String winery;
@@ -31,65 +35,57 @@ public class WineEntity {
     @Column(name = "country", updatable = false)
     private String country;
 
-    @Column(name = "points", updatable = false)
-    private Long points;
+    @Column(name = "wine_color", updatable = false)
+    private String wineColor;
 
-    @Column(name = "description", updatable = false, length = 10000)
-    private String description;
+    @Column(name = "region", updatable = false, length = 10000)
+    private String region;
+
+    @Column(name = "variety", updatable = false)
+    private String variety;
+
+    @Column(name = "rating", updatable = false)
+    private Double rating;
 
     @Column(name = "price", updatable = false)
-    private String price;
+    private Double price;
 
-    @Column(name = "province", updatable = false)
-    private String province;
+    @Column(name = "style", updatable = false)
+    private String style;
 
-    @Column(name = "wine_name", updatable = false)
-    private String wineName1;
-
-    @Column(name = "wine_name_v2", updatable = false)
-    private String wineName2;
-
-    @Column(name = "region_1", updatable = false)
-    private String region1;
-
-    @Column(name = "region_2", updatable = false)
-    private String region2;
+    @ManyToMany(mappedBy = "wines")
+    private Set<RecommendationEntity> recommendations = new HashSet<>();
 
     public WineEntity() {}
 
-    public WineEntity(String variety, String wineColor, String winery, String country, Long points, String description, String price, String province, String wineName1, String wineName2, String region1, String region2) {
-        this.variety = variety;
-        this.wineColor = wineColor;
+    public WineEntity(Long id, String name, Long year, String winery, String country, String wineColor, String region, String variety, Double rating, Double price, String style) {
+        this.id = id;
+        this.name = name;
+        this.year = year;
         this.winery = winery;
         this.country = country;
-        this.points = points;
-        this.description = description;
-        this.price = price;
-        this.province = province;
-        this.wineName1 = wineName1;
-        this.wineName2 = wineName2;
-        this.region1 = region1;
-        this.region2 = region2;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getVariety() {
-        return variety;
-    }
-
-    public void setVariety(String variety) {
-        this.variety = variety;
-    }
-
-    public String getWineColor() {
-        return wineColor;
-    }
-
-    public void setWineColor(String wineColor) {
         this.wineColor = wineColor;
+        this.region = region;
+        this.variety = variety;
+        this.rating = rating;
+        this.price = price;
+        this.style = style;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Long getYear() {
+        return year;
+    }
+
+    public void setYear(Long year) {
+        this.year = year;
     }
 
     public String getWinery() {
@@ -100,6 +96,14 @@ public class WineEntity {
         this.winery = winery;
     }
 
+    public String getWineColor() {
+        return wineColor;
+    }
+
+    public void setWineColor(String wineColor) {
+        this.wineColor = wineColor;
+    }
+
     public String getCountry() {
         return country;
     }
@@ -108,67 +112,51 @@ public class WineEntity {
         this.country = country;
     }
 
-    public Long getPoints() {
-        return points;
+    public String getVariety() {
+        return variety;
     }
 
-    public void setPoints(Long points) {
-        this.points = points;
+    public void setVariety(String variety) {
+        this.variety = variety;
     }
 
-    public String getDescription() {
-        return description;
+    public String getRegion() {
+        return region;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setRegion(String region) {
+        this.region = region;
     }
 
-    public String getPrice() {
+    public Double getPrice() {
         return price;
     }
 
-    public void setPrice(String price) {
+    public void setPrice(Double price) {
         this.price = price;
     }
 
-    public String getProvince() {
-        return province;
+    public Double getRating() {
+        return rating;
     }
 
-    public void setProvince(String province) {
-        this.province = province;
+    public void setRating(Double rating) {
+        this.rating = rating;
     }
 
-    public String getWineName() {
-        return wineName1;
+    public String getStyle() {
+        return style;
     }
 
-    public void setWineName(String wineName1) {
-        this.wineName1 = wineName1;
+    public void setStyle(String style) {
+        this.style = style;
     }
 
-    public String getWineNameV2() {
-        return wineName2;
+    public Long getId() {
+        return id;
     }
 
-    public void setWineNameV2(String wineName2) {
-        this.wineName2 = wineName2;
-    }
-
-    public String getRegion1() {
-        return region1;
-    }
-
-    public void setRegion1(String region1) {
-        this.region1 = region1;
-    }
-
-    public String getRegion2() {
-        return region2;
-    }
-
-    public void setRegion2(String region2) {
-        this.region2 = region2;
+    public void setId(Long id) {
+        this.id = id;
     }
 }

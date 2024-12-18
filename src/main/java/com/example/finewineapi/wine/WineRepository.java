@@ -1,6 +1,5 @@
 package com.example.finewineapi.wine;
 
-import com.example.finewineapi.models.FindWineReq;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,20 +12,20 @@ import java.util.List;
 @Repository
 public interface WineRepository extends JpaRepository<WineEntity, Long> {
 
-    @Query("SELECT w.id FROM wine_entity w WHERE w.wineColor = :wineColor AND w.points > :pointLimit")
+    @Query("SELECT w.id FROM wine_entity w WHERE w.wineColor = :wineColor AND w.rating > :ratingLimit")
     List<Long> findIdsByWineColorAndPointsGreaterThan(
             @Param("wineColor") String wineColor,
-            @Param("pointLimit") Long pointLimit
+            @Param("ratingLimit") Double ratingLimit
     );
 
     @Query(nativeQuery = true, value = "SELECT * FROM wines as w WHERE " +
             "w.wine_color IS NOT NULL " +
             "AND w.variety IS NOT NULL " +
-            "AND w.province IS NOT NULL " +
+            "AND w.region IS NOT NULL " +
             "AND w.winery IS NOT NULL " +
             "AND w.country IS NOT NULL " +
-            "AND w.points IS NOT NULL " +
-            "AND w.description IS NOT NULL " +
+            "AND w.rating IS NOT NULL " +
+            "AND w.name IS NOT NULL " +
 //            "AND (:colors IS NULL OR w.wine_color IN :colors) " +
 //            "AND (:varieties IS NULL OR w.variety IN :varieties) " +
 //            "AND (:countries IS NULL OR w.country IN :countries) " +

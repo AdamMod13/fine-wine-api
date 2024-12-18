@@ -28,8 +28,8 @@ public class VarietyServiceImpl implements VarietyService {
     }
 
     @Override
-    public List<VarietyDTO> getFiveRandomVarieties() {
-        List<VarietyEntity> varieties = this.varietyRepository.findRandomUniqueVarieties();
+    public List<VarietyDTO> getRandomVarieties(Long size) {
+        List<VarietyEntity> varieties = this.varietyRepository.findRandomUniqueVarieties(size);
         return varieties
                 .stream()
                 .map(varietyEntity -> modelMapper.map(varietyEntity, VarietyDTO.class))

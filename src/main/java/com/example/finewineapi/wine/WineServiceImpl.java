@@ -1,9 +1,8 @@
 package com.example.finewineapi.wine;
 
-import com.example.finewineapi.models.FindWineReq;
-import com.example.finewineapi.models.FindWineRes;
-import com.example.finewineapi.models.RecommendationJson;
-import com.example.finewineapi.models.WineRecommendationReq;
+import com.example.finewineapi.models.*;
+import com.example.finewineapi.savedWines.SavedWineEntity;
+import com.example.finewineapi.savedWines.SavedWineRepository;
 import com.example.finewineapi.variety.VarietyDTO;
 import com.example.finewineapi.variety.VarietyService;
 import com.example.finewineapi.winery.WineryDTO;
@@ -14,10 +13,10 @@ import com.example.finewineapi.currentRecommendations.CurrentRecommendationsRepo
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
+import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
@@ -41,16 +40,19 @@ public class WineServiceImpl implements WineService {
     private final VarietyService varietyService;
     private final WineryService wineryService;
     private final WineRepository wineRepository;
+    private final SavedWineRepository savedWineRepository;
     private final CurrentRecommendationsRepository currentRecommendationsRepository;
 
     public WineServiceImpl(WineRepository wineRepository,
                            CurrentRecommendationsRepository currentRecommendationsRepository,
                            VarietyService varietyService,
-                           WineryService wineryService) {
+                           WineryService wineryService,
+                           SavedWineRepository savedWineRepository) {
         this.wineRepository = wineRepository;
         this.currentRecommendationsRepository = currentRecommendationsRepository;
         this.varietyService = varietyService;
         this.wineryService = wineryService;
+        this.savedWineRepository = savedWineRepository;
     }
 
     @Override
@@ -62,13 +64,20 @@ public class WineServiceImpl implements WineService {
                 .collect(Collectors.toList());
     }
 
+
+//    Red - 1
+//    White - 2
+//    Sparkling - 3
+//    Rose - 4
+//    Dessert - 7
+//    Fortified - 24
     @Override
     public List<WineDTO> getBestRandomWines() {
         List<WineEntity> bestRandomWines = new ArrayList<>();
-        bestRandomWines.add(getRandomWine("red"));
-        bestRandomWines.add(getRandomWine("white"));
-        bestRandomWines.add(getRandomWine("rose"));
-        bestRandomWines.add(getRandomWine("sparkling"));
+        bestRandomWines.add(getRandomWine("1"));
+        bestRandomWines.add(getRandomWine("2"));
+        bestRandomWines.add(getRandomWine("4"));
+        bestRandomWines.add(getRandomWine("3"));
         return bestRandomWines
                 .stream()
                 .map(wineEntity -> modelMapper.map(wineEntity, WineDTO.class))
@@ -81,9 +90,17 @@ public class WineServiceImpl implements WineService {
 
         List<String> params = new ArrayList<>(defaultParams);
         params.add(";");
-        params.addAll(wineRecommendationReq.getCountries().isEmpty() ? List.of("") : wineRecommendationReq.getCountries());
+        params.addAll(
+                wineRecommendationReq.getCountries().isEmpty() || wineRecommendationReq.getCountries() == null
+                        ? List.of("")
+                        : wineRecommendationReq.getCountries()
+        );
         params.add(";");
-        params.addAll(wineRecommendationReq.getWineColors().isEmpty() ? List.of("") : wineRecommendationReq.getWineColors());
+        params.addAll(
+                wineRecommendationReq.getWineColors().isEmpty() || wineRecommendationReq.getWineColors() == null
+                        ? List.of("")
+                        : wineRecommendationReq.getWineColors()
+        );
         params.add(";");
 
         ProcessBuilder processBuilder = new ProcessBuilder(params);
@@ -119,7 +136,7 @@ public class WineServiceImpl implements WineService {
     }
 
     private WineEntity getRandomWine(String wineColor) {
-        List<Long> randomWineIds = wineRepository.findIdsByWineColorAndPointsGreaterThan(wineColor, 80L);
+        List<Long> randomWineIds = wineRepository.findIdsByWineColorAndPointsGreaterThan(wineColor, 3.0);
 
         if (randomWineIds.isEmpty()) {
             return null; // No wines match the criteria
@@ -158,7 +175,7 @@ public class WineServiceImpl implements WineService {
                 findWineReq.getWineColors(),
                 findWineReq.getVarieties(),
                 findWineReq.getCountries(),
-                findWineReq.getProvinces(),
+                findWineReq.getRegions(),
                 findWineReq.getWineries()
         );
 
@@ -166,24 +183,24 @@ public class WineServiceImpl implements WineService {
                 "SELECT * FROM wines as w WHERE " +
                 "w.wine_color IS NOT NULL " +
                 "AND w.variety IS NOT NULL " +
-                "AND w.province IS NOT NULL " +
+                "AND w.region IS NOT NULL " +
                 "AND w.winery IS NOT NULL " +
                 "AND w.country IS NOT NULL " +
-                "AND w.points IS NOT NULL " +
-                "AND w.description IS NOT NULL " +
+                "AND w.rating IS NOT NULL " +
+                "AND w.name IS NOT NULL " +
                 "AND (:colors IS NULL OR w.wine_color IN :colors) " +
-//                "AND (:varieties IS NULL OR w.variety IN :varieties) " +
+                "AND (:varieties IS NULL OR w.variety IN :varieties) " +
                 "AND (:countries IS NULL OR w.country IN :countries) " +
 //                "AND (:provinces IS NULL OR w.province IN :provinces) " +
-//                "AND (:wineries IS NULL OR w.winery IN :wineries) " +
+                "AND (:wineries IS NULL OR w.winery IN :wineries) " +
                 "ORDER BY w.id";
 
-        Query q = entityManager.createNativeQuery(nativeQuery);
+        Query q = entityManager.createNativeQuery(nativeQuery, WineEntity.class);
         q.setParameter("colors", findWineReq.getWineColors());
-//        q.setParameter("varieties", findWineReq.getVarieties());
+        q.setParameter("varieties", findWineReq.getVarieties());
         q.setParameter("countries", findWineReq.getCountries());
 //        q.setParameter("provinces", findWineReq.getProvinces());
-//        q.setParameter("wineries", findWineReq.getWineries());
+        q.setParameter("wineries", findWineReq.getWineries());
         int offset = (pageNumber) * 10;
 
         q.setFirstResult(offset);
@@ -191,9 +208,50 @@ public class WineServiceImpl implements WineService {
 
         List<WineEntity> entities = q.getResultList();
 
-        List<String> varieties = this.varietyService.getFiveRandomVarieties().stream().map(VarietyDTO::getVariety).toList();
-        List<String> wineries = this.wineryService.getFiveRandomWineries().stream().map(WineryDTO::getWinery).toList();
+        Page<WineDTO> winess = new PageImpl<>(
+                entities
+                    .stream()
+                    .map(wineObject -> modelMapper.map(wineObject, WineDTO.class))
+                    .collect(Collectors.toList())
+        );
 
-        return new FindWineRes(wineEntityPage.map(wine -> modelMapper.map(wine, WineDTO.class)), varieties, wineries);
+        List<String> varieties = this.varietyService.getRandomVarieties(5L).stream().map(VarietyDTO::getVariety).toList();
+        List<String> wineries = this.wineryService.getRandomWineries(5L).stream().map(WineryDTO::getWinery).toList();
+
+        return new FindWineRes(winess, varieties, wineries);
+    }
+
+    @Override
+    public void saveFavouriteWine(WishlistWineReq wineToSave) {
+        if (!this.savedWineRepository.existsByWineAndUserId(wineToSave.getWine(), wineToSave.getUserId())) {
+            this.savedWineRepository.save(new SavedWineEntity(wineToSave.userId, wineToSave.getWine()));
+        }
+    }
+
+    @Override
+    @Transactional
+    public void deleteFavouriteWine(WishlistWineReq wineToSave) {
+        if (this.savedWineRepository.existsByWineAndUserId(wineToSave.getWine(), wineToSave.getUserId())) {
+            this.savedWineRepository.deleteByWineAndUserId(wineToSave.getWine(), wineToSave.getUserId());
+        }
+    }
+
+    @Override
+    public List<WineDTO> getFavouriteWinesPage(int pageNumber, String userId) {
+        Pageable pageableRequest = PageRequest.of(pageNumber, 3, Sort.by("id").descending());
+        Page<SavedWineEntity> savedWineEntities = this.savedWineRepository.findAllByUserIdOrderById(pageableRequest, userId);
+        return savedWineEntities
+                .stream()
+                .map(wineObject -> modelMapper.map(wineObject.getWine(), WineDTO.class))
+                .toList();
+    }
+
+    @Override
+    public List<WineDTO> getAllFavourites(String userId) {
+        List<SavedWineEntity> savedWineEntities = this.savedWineRepository.findAllByUserIdOrderById(userId);
+        return savedWineEntities
+                .stream()
+                .map(wineObject -> modelMapper.map(wineObject.getWine(), WineDTO.class))
+                .toList();
     }
 }

@@ -36,10 +36,10 @@ wine1 = wine[col]
 wine1 = wine1.dropna(axis=0)
 wine1 = wine1.drop_duplicates(['winery','variety'])
 
-# if countries:
-#     wine1 = wine1[wine1['country'].isin(countries)]
-# if wineColors:
-#     wine1 = wine1[wine1['wine_color'].isin(wineColors)]
+if countries:
+    wine1 = wine1[wine1['country'].isin(countries)]
+if wineColors:
+    wine1 = wine1[wine1['wine_color'].isin(wineColors)]
 
 wine_pivot = wine1.pivot(index= 'winery', columns='variety', values='points').fillna(0)
 wine_pivot_matrix = csr_matrix(wine_pivot)

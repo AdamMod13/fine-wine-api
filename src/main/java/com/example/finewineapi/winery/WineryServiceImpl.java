@@ -28,8 +28,8 @@ public class WineryServiceImpl implements WineryService {
     }
 
     @Override
-    public List<WineryDTO> getFiveRandomWineries() {
-        List<WineryEntity> wineries = this.wineryRepository.findRandomUniqueWineries();
+    public List<WineryDTO> getRandomWineries(Long size) {
+        List<WineryEntity> wineries = this.wineryRepository.findRandomUniqueWineries(size);
         return wineries
                 .stream()
                 .map(wineryEntity -> modelMapper.map(wineryEntity, WineryDTO.class))

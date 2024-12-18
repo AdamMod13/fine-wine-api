@@ -18,4 +18,20 @@ public class FineWineApiApplication {
     public ModelMapper getModelMapper() {
         return new ModelMapper();
     }
+
+//    @Bean
+//    CommandLineRunner commandLineRunner(
+//            SavedRecommendationRepository savedRecommendationRepository,
+//            WineRepository wineRepository,
+//            RecommendationService recommendationService
+//    ) {
+//        return args -> {
+//            Set<Long> wineIds = new HashSet<>();
+//            wineIds.add(1L);
+//            wineIds.add(2L);
+//            recommendationService.saveRecommendation(new RecommendationEntity(), wineIds);
+//
+//
+//        };
+//    }
 }

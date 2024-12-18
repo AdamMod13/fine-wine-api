@@ -7,21 +7,18 @@ import lombok.Setter;
 @Setter
 public class WineDTO {
     private Long id;
-    private String variety;
-    private String wineColor;
+    private String name;
+    private Long year;
     private String winery;
     private String country;
-    private Long points;
-    private String description;
-    private String price;
-    private String province;
-    private String wineName1;
-    private String wineName2;
-    private String region1;
-    private String region2;
+    private String wineColor;
+    private String region;
+    private String variety;
+    private Double rating;
+    private Double price;
+    private String style;
 
-    public WineDTO() {
-    }
+    public WineDTO() {}
 
     public Long getId() {
         return id;
@@ -31,20 +28,20 @@ public class WineDTO {
         this.id = id;
     }
 
-    public String getVariety() {
-        return variety;
+    public String getName() {
+        return name;
     }
 
-    public void setVariety(String variety) {
-        this.variety = variety;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getWineColor() {
-        return wineColor;
+    public Long getYear() {
+        return year;
     }
 
-    public void setWineColor(String wineColor) {
-        this.wineColor = wineColor;
+    public void setYear(Long year) {
+        this.year = year;
     }
 
     public String getWinery() {
@@ -63,67 +60,51 @@ public class WineDTO {
         this.country = country;
     }
 
-    public Long getPoints() {
-        return points;
+    public String getWineColor() {
+        return wineColor;
     }
 
-    public void setPoints(Long points) {
-        this.points = points;
+    public void setWineColor(String wineColor) {
+        this.wineColor = wineColor;
     }
 
-    public String getDescription() {
-        return description;
+    public String getRegion() {
+        return region;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setRegion(String region) {
+        this.region = region;
     }
 
-    public String getPrice() {
+    public String getVariety() {
+        return variety;
+    }
+
+    public void setVariety(String variety) {
+        this.variety = variety;
+    }
+
+    public Double getRating() {
+        return rating;
+    }
+
+    public void setRating(Double rating) {
+        this.rating = rating;
+    }
+
+    public Double getPrice() {
         return price;
     }
 
-    public void setPrice(String price) {
+    public void setPrice(Double price) {
         this.price = price;
     }
 
-    public String getProvince() {
-        return province;
+    public String getStyle() {
+        return style;
     }
 
-    public void setProvince(String province) {
-        this.province = province;
-    }
-
-    public String getWineName2() {
-        return wineName2;
-    }
-
-    public void setWineName2(String wineName2) {
-        this.wineName2 = wineName2;
-    }
-
-    public String getRegion1() {
-        return region1;
-    }
-
-    public String getWineName1() {
-        return wineName1;
-    }
-
-    public void setWineName1(String wineName1) {
-        this.wineName1 = wineName1;
-    }
-
-    public void setRegion1(String region1) {
-        this.region1 = region1;
-    }
-
-    public String getRegion2() {
-        return region2;
-    }
-
-    public void setRegion2(String region2) {
-        this.region2 = region2;
+    public void setStyle(String style) {
+        this.style = style;
     }
 }

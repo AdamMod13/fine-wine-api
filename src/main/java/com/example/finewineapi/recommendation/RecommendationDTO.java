@@ -1,5 +1,6 @@
 package com.example.finewineapi.recommendation;
 
+import com.example.finewineapi.wine.WineDTO;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,30 +9,30 @@ import java.util.List;
 @Getter
 @Setter
 public class RecommendationDTO {
-    List<String> wineries;
-    List<String> varieties;
+    private Long id;
+    private List<WineDTO> wines;
 
     public RecommendationDTO() {
     }
 
-    public RecommendationDTO(List<String> wineries, List<String> varieties) {
-        this.wineries = wineries;
-        this.varieties = varieties;
+    public RecommendationDTO(Long id, List<WineDTO> wines) {
+        this.id = id;
+        this.wines = wines;
     }
 
-    public List<String> getWineries() {
-        return wineries;
+    public Long getId() {
+        return id;
     }
 
-    public void setWineries(List<String> wineries) {
-        this.wineries = wineries;
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    public List<String> getVarieties() {
-        return varieties;
+    public List<WineDTO> getWines() {
+        return wines;
     }
 
-    public void setVarieties(List<String> varieties) {
-        this.varieties = varieties;
+    public void setWines(List<WineDTO> wines) {
+        this.wines = wines;
     }
 }
