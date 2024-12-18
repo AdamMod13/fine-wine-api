@@ -64,13 +64,20 @@ public class WineServiceImpl implements WineService {
                 .collect(Collectors.toList());
     }
 
+
+//    Red - 1
+//    White - 2
+//    Sparkling - 3
+//    Rose - 4
+//    Dessert - 7
+//    Fortified - 24
     @Override
     public List<WineDTO> getBestRandomWines() {
         List<WineEntity> bestRandomWines = new ArrayList<>();
-        bestRandomWines.add(getRandomWine("red"));
-        bestRandomWines.add(getRandomWine("white"));
-        bestRandomWines.add(getRandomWine("rose"));
-        bestRandomWines.add(getRandomWine("sparkling"));
+        bestRandomWines.add(getRandomWine("1"));
+        bestRandomWines.add(getRandomWine("2"));
+        bestRandomWines.add(getRandomWine("4"));
+        bestRandomWines.add(getRandomWine("3"));
         return bestRandomWines
                 .stream()
                 .map(wineEntity -> modelMapper.map(wineEntity, WineDTO.class))
@@ -129,7 +136,7 @@ public class WineServiceImpl implements WineService {
     }
 
     private WineEntity getRandomWine(String wineColor) {
-        List<Long> randomWineIds = wineRepository.findIdsByWineColorAndPointsGreaterThan(wineColor, 80L);
+        List<Long> randomWineIds = wineRepository.findIdsByWineColorAndPointsGreaterThan(wineColor, 3.0);
 
         if (randomWineIds.isEmpty()) {
             return null; // No wines match the criteria
@@ -162,15 +169,25 @@ public class WineServiceImpl implements WineService {
 
     @Override
     public FindWineRes getWinePageWithFilters(int pageNumber, FindWineReq findWineReq) {
+        PageRequest pageRequest = PageRequest.of(pageNumber, 10);
+        Page<WineEntity> wineEntityPage = this.wineRepository.findWinesWithNoNullColumns(
+                pageRequest,
+                findWineReq.getWineColors(),
+                findWineReq.getVarieties(),
+                findWineReq.getCountries(),
+                findWineReq.getRegions(),
+                findWineReq.getWineries()
+        );
+
         String nativeQuery =
                 "SELECT * FROM wines as w WHERE " +
                 "w.wine_color IS NOT NULL " +
                 "AND w.variety IS NOT NULL " +
-                "AND w.province IS NOT NULL " +
+                "AND w.region IS NOT NULL " +
                 "AND w.winery IS NOT NULL " +
                 "AND w.country IS NOT NULL " +
-                "AND w.points IS NOT NULL " +
-                "AND w.description IS NOT NULL " +
+                "AND w.rating IS NOT NULL " +
+                "AND w.name IS NOT NULL " +
                 "AND (:colors IS NULL OR w.wine_color IN :colors) " +
                 "AND (:varieties IS NULL OR w.variety IN :varieties) " +
                 "AND (:countries IS NULL OR w.country IN :countries) " +
