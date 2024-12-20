@@ -29,4 +29,6 @@ public interface WineService {
     void saveFavouriteWine(WishlistWineReq wineToSave);
 
     void deleteFavouriteWine(WishlistWineReq wineToDelete);
+
+    List<WineDTO> getWinesByFilters(FindWineReq findWineReq);
 }

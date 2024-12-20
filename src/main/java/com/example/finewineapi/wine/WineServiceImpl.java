@@ -22,10 +22,7 @@ import org.springframework.stereotype.Service;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -84,16 +81,18 @@ public class WineServiceImpl implements WineService {
         List<String> params = new ArrayList<>(defaultParams);
         params.add(";");
         params.addAll(
-                wineRecommendationReq.getCountries().isEmpty() || wineRecommendationReq.getCountries() == null
+                wineRecommendationReq.getCountries() == null || wineRecommendationReq.getCountries().isEmpty()
                         ? List.of("")
                         : wineRecommendationReq.getCountries()
         );
         params.add(";");
         params.addAll(
-                wineRecommendationReq.getWineColors().isEmpty() || wineRecommendationReq.getWineColors() == null
+                wineRecommendationReq.getWineColors() == null || wineRecommendationReq.getWineColors().isEmpty()
                         ? List.of("")
                         : wineRecommendationReq.getWineColors()
         );
+        params.add(";");
+        params.add(Long.toString(wineRecommendationReq.getPickedWineId()));
         params.add(";");
 
         ProcessBuilder processBuilder = new ProcessBuilder(params);
@@ -105,6 +104,7 @@ public class WineServiceImpl implements WineService {
         String line;
         List<String> pythonOutput = new ArrayList<>();
         while ((line = reader.readLine()) != null) {
+            System.out.println(line);
             pythonOutput.add(line);
         }
 
@@ -174,16 +174,30 @@ public class WineServiceImpl implements WineService {
                 "AND (:colors IS NULL OR w.wine_color IN :colors) " +
                 "AND (:varieties IS NULL OR w.variety IN :varieties) " +
                 "AND (:countries IS NULL OR w.country IN :countries) " +
-//                "AND (:provinces IS NULL OR w.province IN :provinces) " +
                 "AND (:wineries IS NULL OR w.winery IN :wineries) " +
                 "ORDER BY w.id";
 
         Query q = entityManager.createNativeQuery(nativeQuery, WineEntity.class);
-        q.setParameter("colors", findWineReq.getWineColors());
-        q.setParameter("varieties", findWineReq.getVarieties());
-        q.setParameter("countries", findWineReq.getCountries());
-//        q.setParameter("provinces", findWineReq.getProvinces());
-        q.setParameter("wineries", findWineReq.getWineries());
+        q.setParameter("colors",
+                findWineReq.getWineColors() == null || findWineReq.getWineColors().isEmpty()
+                    ? new ArrayList<>()
+                    : findWineReq.getWineColors()
+                );
+        q.setParameter("varieties",
+                findWineReq.getVarieties() == null || findWineReq.getVarieties().isEmpty()
+                    ? new ArrayList<>()
+                    : findWineReq.getVarieties()
+        );
+        q.setParameter("countries",
+                findWineReq.getCountries() == null || findWineReq.getCountries().isEmpty()
+                        ? new ArrayList<>()
+                        : findWineReq.getCountries()
+        );
+        q.setParameter("wineries",
+                findWineReq.getWineries() == null || findWineReq.getWineries().isEmpty()
+                        ? new ArrayList<>()
+                        : findWineReq.getWineries()
+        );
         int offset = (pageNumber) * 10;
 
         q.setFirstResult(offset);
@@ -236,5 +250,57 @@ public class WineServiceImpl implements WineService {
                 .stream()
                 .map(wineObject -> modelMapper.map(wineObject.getWine(), WineDTO.class))
                 .toList();
+    }
+
+    @Override
+    public List<WineDTO> getWinesByFilters(FindWineReq findWineReq) {
+        boolean isFirstReq = (
+                findWineReq.getWineColors() == null || findWineReq.getWineColors().isEmpty())
+                && (findWineReq.getCountries() == null || findWineReq.getCountries().isEmpty()
+        );
+        boolean isFilteringByWinery = findWineReq.getWinerySearchString() == null || Objects.equals(findWineReq.getWinerySearchString(), "");
+
+        String nativeQuery =
+                "SELECT * FROM wines as w WHERE " +
+                        "w.wine_color IS NOT NULL " +
+                        "AND w.variety IS NOT NULL " +
+                        "AND w.province IS NOT NULL " +
+                        "AND w.winery IS NOT NULL " +
+                        "AND w.country IS NOT NULL " +
+                        "AND w.points IS NOT NULL ";
+
+        Query q;
+
+        if (!isFirstReq || !isFilteringByWinery) {
+            if (!isFirstReq) {
+                nativeQuery += "AND (:colors IS NULL OR w.wine_color IN :colors) " +
+                        "AND (:countries IS NULL OR w.country IN :countries) ";
+            }
+            if (!isFilteringByWinery) {
+                nativeQuery += "AND (:winery IS NULL OR w.winery LIKE :winery)";
+            }
+
+            nativeQuery += "ORDER BY w.id";
+
+            q = entityManager.createNativeQuery(nativeQuery, WineEntity.class);
+            if (!isFirstReq) {
+                q.setParameter("colors", findWineReq.getWineColors());
+                q.setParameter("countries", findWineReq.getCountries());
+            }
+            if (!isFilteringByWinery) {
+                q.setParameter("winery", "%" + findWineReq.getWinerySearchString() + "%");
+            }
+        } else {
+            nativeQuery += "ORDER BY w.id";
+            q = entityManager.createNativeQuery(nativeQuery, WineEntity.class);
+        }
+
+        q.setMaxResults(20);
+        List<WineEntity> entities = q.getResultList();
+
+        return entities
+                .stream()
+                .map(wineObject -> modelMapper.map(wineObject, WineDTO.class))
+                .collect(Collectors.toList());
     }
 }

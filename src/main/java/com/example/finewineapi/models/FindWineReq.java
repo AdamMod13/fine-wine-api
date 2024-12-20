@@ -10,11 +10,12 @@ public class FindWineReq {
     public List<String> provinces;
     public Long price;
     public Long points;
+    public String winerySearchString;
 
     public FindWineReq() {
     }
 
-    public FindWineReq(List<String> countries, List<String> wineColors, List<String> varieties, List<String> wineries, List<String> provinces, Long price, Long points) {
+    public FindWineReq(List<String> countries, List<String> wineColors, List<String> varieties, List<String> wineries, List<String> provinces, Long price, Long points, String winerySearchString) {
         this.countries = countries;
         this.wineColors = wineColors;
         this.varieties = varieties;
@@ -22,6 +23,7 @@ public class FindWineReq {
         this.provinces = provinces;
         this.price = price;
         this.points = points;
+        this.winerySearchString = winerySearchString;
     }
 
     public List<String> getCountries() {
@@ -78,5 +80,13 @@ public class FindWineReq {
 
     public void setPoints(Long points) {
         this.points = points;
+    }
+
+    public String getWinerySearchString() {
+        return winerySearchString;
+    }
+
+    public void setWinerySearchString(String winerySearchString) {
+        this.winerySearchString = winerySearchString;
     }
 }

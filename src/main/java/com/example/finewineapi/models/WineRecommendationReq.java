@@ -10,11 +10,12 @@ public class WineRecommendationReq {
     String province;
     Long price;
     Long points;
+    Long pickedWineId;
 
     public WineRecommendationReq() {
     }
 
-    public WineRecommendationReq(List<String> countries, List<String> wineColors, String variety, String winery, String province, Long price, Long points) {
+    public WineRecommendationReq(List<String> countries, List<String> wineColors, String variety, String winery, String province, Long price, Long points, Long pickedWineId) {
         this.countries = countries;
         this.wineColors = wineColors;
         this.variety = variety;
@@ -22,6 +23,7 @@ public class WineRecommendationReq {
         this.province = province;
         this.price = price;
         this.points = points;
+        this.pickedWineId = pickedWineId;
     }
 
     public List<String> getCountries() {
@@ -78,5 +80,13 @@ public class WineRecommendationReq {
 
     public void setProvince(String province) {
         this.province = province;
+    }
+
+    public Long getPickedWineId() {
+        return pickedWineId;
+    }
+
+    public void setPickedWineId(Long pickedWineId) {
+        this.pickedWineId = pickedWineId;
     }
 }

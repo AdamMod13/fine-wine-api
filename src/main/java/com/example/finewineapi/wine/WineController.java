@@ -31,7 +31,8 @@ public class WineController {
     }
 
     @PostMapping("/get-recommendations")
-    public List<WineDTO> getRecommendations(@RequestBody WineRecommendationReq wineRecommendationReq) throws IOException, InterruptedException {
+    public List<WineDTO> getRecommendations(@RequestBody WineRecommendationReq wineRecommendationReq)
+            throws IOException, InterruptedException {
         return this.wineService.getRecommendations(wineRecommendationReq);
     }
 
@@ -68,5 +69,10 @@ public class WineController {
     @PostMapping("/get-all-favourites")
     public List<WineDTO> getFavouriteWinesPage(@RequestBody String userId) {
         return this.wineService.getAllFavourites(userId);
+    }
+
+    @PostMapping("/get-wine-by-filters")
+    public List<WineDTO> getFavouriteWinesPage(@RequestBody FindWineReq findWineReq) {
+        return this.wineService.getWinesByFilters(findWineReq);
     }
 }
