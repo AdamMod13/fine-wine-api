@@ -10,9 +10,7 @@ public class FindWineRes {
     public List<String> randomVarieties;
     public List<String> randomWineries;
 
-
-    public FindWineRes() {
-    }
+    public FindWineRes() {}
 
     public FindWineRes(Page<WineDTO> winePage, List<String> randomVarieties, List<String> randomWineries) {
         this.winePage = winePage;

@@ -1,10 +1,12 @@
 package com.example.finewineapi.wine;
 
+import com.example.finewineapi.image.ImageService;
 import com.example.finewineapi.models.FindWineReq;
 import com.example.finewineapi.models.FindWineRes;
 import com.example.finewineapi.models.WishlistWineReq;
 import com.example.finewineapi.models.WineRecommendationReq;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
@@ -15,8 +17,10 @@ import java.util.List;
 public class WineController {
 
     private final WineService wineService;
+    private final ImageService imageService;
 
-    public WineController(WineService wineService) {
+    public WineController(WineService wineService, ImageService imageService) {
+        this.imageService = imageService;
         this.wineService = wineService;
     }
 
@@ -74,5 +78,10 @@ public class WineController {
     @PostMapping("/get-wine-by-filters")
     public List<WineDTO> getFavouriteWinesPage(@RequestBody FindWineReq findWineReq) {
         return this.wineService.getWinesByFilters(findWineReq);
+    }
+
+    @PostMapping("/get-wine-by-etiquette")
+    public WineDTO getWineByEtiquette(@RequestParam("image") MultipartFile image) throws IOException {
+        return this.imageService.getWineByEtiquette(image);
     }
 }

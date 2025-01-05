@@ -7,8 +7,8 @@ import psycopg2
 import itertools
 
 conn = psycopg2.connect(
-    dbname="fine_wine",
-    user="adam",
+    dbname="fine-wine-db",
+    user="postgres",
     password="postgres",
     host="localhost",
     port="5432"
@@ -36,15 +36,15 @@ conn.close()
 
 wine = wines.copy()
 
-col = ['id','variety','winery','price','points','province','country','wine_color']
+col = ['id','variety','winery','price','rating','region','country','wine_color']
 wine1 = wine[col]
 wine1 = wine1.dropna(axis=0)
 wine1 = wine1.drop_duplicates(['winery','variety'])
-wine_pivot = wine1.pivot(index= 'winery', columns=['variety','price','wine_color'], values='points').fillna(0)
+wine_pivot = wine1.pivot(index= 'winery', columns=['variety','price','wine_color'], values='rating').fillna(0)
 wine_pivot_matrix = csr_matrix(wine_pivot)
 knn = NearestNeighbors(n_neighbors=10, algorithm= 'brute', metric= 'cosine')
 model_knn = knn.fit(wine_pivot_matrix)
-query_index = wine_pivot.index.get_loc(pickedWine[3])
+query_index = wine_pivot.index.get_loc(pickedWine[9])
 distance, indice = model_knn.kneighbors(wine_pivot.iloc[query_index,:].values.reshape(1,-1), n_neighbors=6)
 
 results = []
@@ -54,7 +54,8 @@ for i in range(0, len(distance.flatten())):
     result_item = {
         'id': float(wine_info['id']),
         'variety': wine_info['variety'],
-        'points': float(wine_info['points']),
+        'wineColor': float(wine_info['wine_color']),
+        'rating': float(wine_info['rating']),
         'country': wine_info['country'],
         'winery': wine_info['winery'],
         'distance': float(distance.flatten()[i])

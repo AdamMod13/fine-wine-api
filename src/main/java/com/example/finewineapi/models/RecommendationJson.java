@@ -12,14 +12,11 @@ public class RecommendationJson {
     @JsonProperty("wineColor")
     private String wineColor;
 
-    @JsonProperty("description")
-    private String description;
-
     @JsonProperty("price")
     private double price;
 
-    @JsonProperty("points")
-    private double points;
+    @JsonProperty("rating")
+    private double rating;
 
     @JsonProperty("country")
     private String country;
@@ -27,14 +24,11 @@ public class RecommendationJson {
     @JsonProperty("winery")
     private String winery;
 
-    @JsonProperty("province")
-    private String province;
+    @JsonProperty("region")
+    private String region;
 
     @JsonProperty("wineName")
     private String wineName;
-
-    @JsonProperty("region1")
-    private String region1;
 
     @JsonProperty("distance")
     private double distance;
@@ -55,14 +49,6 @@ public class RecommendationJson {
         this.wineColor = wineColor;
     }
 
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
     public double getPrice() {
         return price;
     }
@@ -71,12 +57,12 @@ public class RecommendationJson {
         this.price = price;
     }
 
-    public double getPoints() {
-        return points;
+    public double getRating() {
+        return rating;
     }
 
-    public void setPoints(Integer points) {
-        this.points = points;
+    public void setRating(Integer rating) {
+        this.rating = rating;
     }
 
     public String getCountry() {
@@ -95,14 +81,6 @@ public class RecommendationJson {
         this.winery = winery;
     }
 
-    public String getProvince() {
-        return province;
-    }
-
-    public void setProvince(String province) {
-        this.province = province;
-    }
-
     public String getWineName() {
         return wineName;
     }
@@ -111,12 +89,12 @@ public class RecommendationJson {
         this.wineName = wineName;
     }
 
-    public String getRegion1() {
-        return region1;
+    public String getRegion() {
+        return region;
     }
 
-    public void setRegion1(String region1) {
-        this.region1 = region1;
+    public void setRegion(String region) {
+        this.region = region;
     }
 
     public String getVariety() {

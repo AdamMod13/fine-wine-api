@@ -26,16 +26,16 @@ public interface WineRepository extends JpaRepository<WineEntity, Long> {
             "AND w.country IS NOT NULL " +
             "AND w.rating IS NOT NULL " +
             "AND w.name IS NOT NULL " +
-//            "AND (:colors IS NULL OR w.wine_color IN :colors) " +
-//            "AND (:varieties IS NULL OR w.variety IN :varieties) " +
-//            "AND (:countries IS NULL OR w.country IN :countries) " +
-//            "AND (:provinces IS NULL OR w.province IN :provinces) " +
-//            "AND (:wineries IS NULL OR w.winery IN :wineries) " +
+            "AND (:colors IS NULL OR w.wine_color IN :colors) " +
+            "AND (:varieties IS NULL OR w.variety IN :varieties) " +
+            "AND (:countries IS NULL OR w.country IN :countries) " +
+            "AND (:regions IS NULL OR w.region IN :regions) " +
+            "AND (:wineries IS NULL OR w.winery IN :wineries) " +
             "ORDER BY w.id")
     Page<WineEntity> findWinesWithNoNullColumns(Pageable pageable,
                                                 @Param("colors") List<String> colors,
                                                 @Param("varieties") List<String> varieties,
                                                 @Param("countries") List<String> countries,
-                                                @Param("provinces") List<String> provinces,
+                                                @Param("regions") List<String> regions,
                                                 @Param("wineries") List<String> wineries);
 }

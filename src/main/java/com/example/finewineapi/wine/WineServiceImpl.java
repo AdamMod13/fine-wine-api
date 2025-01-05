@@ -83,7 +83,7 @@ public class WineServiceImpl implements WineService {
 
     @Override
     public List<WineDTO> getRecommendations(WineRecommendationReq wineRecommendationReq) throws IOException, InterruptedException {
-        List<String> defaultParams = Arrays.asList("python", "src/main/java/com/example/finewineapi/recommending_system.py");
+        List<String> defaultParams = Arrays.asList("python3", "src/main/java/com/example/finewineapi/recommending_system.py");
 
         List<String> params = new ArrayList<>(defaultParams);
         params.add(";");
@@ -100,7 +100,6 @@ public class WineServiceImpl implements WineService {
         );
         params.add(";");
         params.add(Long.toString(wineRecommendationReq.getPickedWineId()));
-        params.add(";");
 
         ProcessBuilder processBuilder = new ProcessBuilder(params);
         processBuilder.redirectErrorStream(true);
@@ -121,7 +120,8 @@ public class WineServiceImpl implements WineService {
             ObjectMapper objectMapper = new ObjectMapper();
 
             List<RecommendationJson> recommendations = new ArrayList<>();
-            for (String outputLine : pythonOutput) {
+            List<String> sixRecommendations = pythonOutput.subList(Math.max(0, pythonOutput.size() - 6), pythonOutput.size());
+            for (String outputLine : sixRecommendations) {
                 RecommendationJson recommendation = objectMapper.readValue(outputLine, RecommendationJson.class);
                 recommendations.add(recommendation);
             }
@@ -169,16 +169,6 @@ public class WineServiceImpl implements WineService {
 
     @Override
     public FindWineRes getWinePageWithFilters(int pageNumber, FindWineReq findWineReq) {
-        PageRequest pageRequest = PageRequest.of(pageNumber, 10);
-        Page<WineEntity> wineEntityPage = this.wineRepository.findWinesWithNoNullColumns(
-                pageRequest,
-                findWineReq.getWineColors(),
-                findWineReq.getVarieties(),
-                findWineReq.getCountries(),
-                findWineReq.getRegions(),
-                findWineReq.getWineries()
-        );
-
         String nativeQuery =
                 "SELECT * FROM wines as w WHERE " +
                 "w.wine_color IS NOT NULL " +
@@ -222,7 +212,7 @@ public class WineServiceImpl implements WineService {
 
         List<WineEntity> entities = q.getResultList();
 
-        Page<WineDTO> winess = new PageImpl<>(
+        Page<WineDTO> wines = new PageImpl<>(
                 entities
                     .stream()
                     .map(wineObject -> modelMapper.map(wineObject, WineDTO.class))
@@ -232,7 +222,7 @@ public class WineServiceImpl implements WineService {
         List<String> varieties = this.varietyService.getRandomVarieties(5L).stream().map(VarietyDTO::getVariety).toList();
         List<String> wineries = this.wineryService.getRandomWineries(5L).stream().map(WineryDTO::getWinery).toList();
 
-        return new FindWineRes(winess, varieties, wineries);
+        return new FindWineRes(wines, varieties, wineries);
     }
 
     @Override
@@ -281,10 +271,10 @@ public class WineServiceImpl implements WineService {
                 "SELECT * FROM wines as w WHERE " +
                         "w.wine_color IS NOT NULL " +
                         "AND w.variety IS NOT NULL " +
-                        "AND w.province IS NOT NULL " +
+                        "AND w.region IS NOT NULL " +
                         "AND w.winery IS NOT NULL " +
                         "AND w.country IS NOT NULL " +
-                        "AND w.points IS NOT NULL ";
+                        "AND w.rating IS NOT NULL ";
 
         Query q;
 
