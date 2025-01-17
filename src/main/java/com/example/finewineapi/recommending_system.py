@@ -36,11 +36,12 @@ conn.close()
 
 wine = wines.copy()
 
-col = ['id','variety','winery','price','rating','region','country','wine_color']
+col = ['id','variety','winery','price','rating','region','country','wine_color','year','value_for_money']
+wine['value_for_money'] = wine['rating'] / wine['price']
 wine1 = wine[col]
 wine1 = wine1.dropna(axis=0)
-wine1 = wine1.drop_duplicates(['winery','variety'])
-wine_pivot = wine1.pivot(index= 'winery', columns=['variety','price','wine_color'], values='rating').fillna(0)
+wine1 = wine1.drop_duplicates(subset=['winery','variety','year'])
+wine_pivot = wine1.pivot(index= 'winery', columns=['variety','price','wine_color','year'], values=['rating', 'value_for_money']).fillna(0)
 wine_pivot_matrix = csr_matrix(wine_pivot)
 knn = NearestNeighbors(n_neighbors=10, algorithm= 'brute', metric= 'cosine')
 model_knn = knn.fit(wine_pivot_matrix)
